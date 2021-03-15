@@ -3,7 +3,7 @@
 TIC_TAC_TOE_X = 'X'
 TIC_TAC_TOE_O = 'O'
 
-# Tic-Tac-Toe game board model
+# Responsible for returning and changing the state of the game board
 class BoardModel
   attr_reader :moves, :spaces
 
@@ -37,7 +37,7 @@ class BoardModel
   end
 end
 
-# Tic-Tac-Toe game board view
+# Responsible for displaying the game board to the user
 class BoardView
   def initialize
     @board = "      |     |     \n"\
@@ -65,7 +65,12 @@ class BoardView
   end
 end
 
-# Tic-Tac-Toe game board controller
+# Responsible for control of the flow of the game,
+# updating the model and calling the view when appropriate
 class BoardController
   def initialize; end
+
+  def new_game
+    puts 'Tic-Tac-Toe! Please enter a number 1 - 9 to begin:'
+  end
 end
