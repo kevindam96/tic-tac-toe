@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
-TIC_TAC_TOE_X = 'X'
-TIC_TAC_TOE_O = 'O'
-
 # Responsible for returning and changing the state of the game board
-class BoardModel
-  attr_reader :moves, :spaces
-
+class Board
   def initialize
     @moves = {}
     @spaces = [1, 2, 3, 4, 5, 6, 7, 8, 9]
   end
 
   def make_move(space_number)
-    symbol = next_symbol
-    @moves[space_number] = symbol
-    @spaces[space_number - 1] = symbol
+    if TicTacToe.invalid_space?(space_number)
+      puts "Invalid space. Please select one of: #{available_spaces}"
+    elsif !available_spaces.include?(space_number)
+      puts "Space has already been selected. Please select one of: #{available_spaces}"
+    else
+      update_board_after_move(space_number)
+      puts to_s
+    end
   end
 
-  def format_board
+  def to_s
     "      |     |     \n"\
       "   #{@spaces[0]}  |  #{@spaces[1]}  |  #{@spaces[2]}  \n"\
       " _____|_____|_____\n"\
@@ -30,47 +30,59 @@ class BoardModel
       '      |     |     '
   end
 
+  def move_count
+    @moves.length
+  end
+
   private
 
   def next_symbol
-    @moves.length.even? ? TIC_TAC_TOE_X : TIC_TAC_TOE_O
-  end
-end
-
-# Responsible for displaying the game board to the user
-class BoardView
-  def initialize
-    @board = "      |     |     \n"\
-      "   1  |  2  |  3  \n"\
-      " _____|_____|_____\n"\
-      "      |     |     \n"\
-      "   4  |  5  |  6  \n"\
-      " _____|_____|_____\n"\
-      "      |     |     \n"\
-      "   7  |  8  |  9  \n"\
-      '      |     |     '
+    @moves.length.even? ? TicTacToe::X : TicTacToe::O
   end
 
-  def render(board_model)
-    refresh_board(board_model)
-    puts @board
+  def update_board_after_move(space_number)
+    symbol = next_symbol
+    @moves[space_number] = symbol
+    @spaces[space_number - 1] = symbol
   end
 
-  def refresh_board(board_model)
-    @board = board_model.format_board
-  end
-
-  def to_s
-    @board
+  def available_spaces
+    @spaces.reject { |space| TicTacToe.symbol?(space) }
   end
 end
 
 # Responsible for control of the flow of the game,
 # updating the model and calling the view when appropriate
-class BoardController
-  def initialize; end
+class Game
+  def initialize
+    @board = Board.new
+  end
 
-  def new_game
-    puts 'Tic-Tac-Toe! Please enter a number 1 - 9 to begin:'
+  def new_round
+    puts 'Tic-Tac-Toe!'
+    puts @board
+  end
+
+  def next_move
+    space_number = if @board.move_count.even?
+                     gets 'Player 1! Please select a space (1 - 9): '
+                   else
+                     gets 'Player 2! Please select a space (1 - 9): '
+                   end
+    @board.make_move(space_number.chomp.to_i)
+  end
+end
+
+# Constants and helper functions
+module TicTacToe
+  X = 'X'
+  O = 'O'
+
+  def self.invalid_space?(space_number)
+    !(space_number.positive? && space_number < 10)
+  end
+
+  def self.symbol?(symbol)
+    (symbol.eql?(X) || symbol.eql?(O))
   end
 end
