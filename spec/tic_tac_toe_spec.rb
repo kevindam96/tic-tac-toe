@@ -73,96 +73,121 @@ describe Board do
       )
     end
   end
-end
-
-describe Game do
-  describe '#new_round' do
-    game = Game.new
-    it 'announces the game displays a new game board' do
-      expect { game.new_round }.to output(
-        "Tic-Tac-Toe!\n"\
-        "      |     |     \n"\
-        "   1  |  2  |  3  \n"\
-        " _____|_____|_____\n"\
-        "      |     |     \n"\
-        "   4  |  5  |  6  \n"\
-        " _____|_____|_____\n"\
-        "      |     |     \n"\
-        "   7  |  8  |  9  \n"\
-        "      |     |     \n"\
-      ).to_stdout
-    end
-  end
-
-  describe '#next_move' do
-    game = Game.new
-    let(:input1) { StringIO.new('7') }
-    let(:input2) { StringIO.new('5') }
-    let(:input3) { StringIO.new('3') }
-    let(:input4) { StringIO.new('3') }
-    let(:input5) { StringIO.new('0') }
-
-    it 'gets the first move, the second move, the third move, '\
-      'and handles the already selected fourth move and invalid fifth move' do
-      $stdin = input1
-      expect { game.next_move }.to output(
-        "      |     |     \n"\
-        "   1  |  2  |  3  \n"\
-        " _____|_____|_____\n"\
-        "      |     |     \n"\
-        "   4  |  5  |  6  \n"\
-        " _____|_____|_____\n"\
-        "      |     |     \n"\
-        "   #{TicTacToe::X}  |  8  |  9  \n"\
-        "      |     |     \n"
-      ).to_stdout
-
-      $stdin = input2
-      expect { game.next_move }.to output(
-        "      |     |     \n"\
-        "   1  |  2  |  3  \n"\
-        " _____|_____|_____\n"\
-        "      |     |     \n"\
-        "   4  |  #{TicTacToe::O}  |  6  \n"\
-        " _____|_____|_____\n"\
-        "      |     |     \n"\
-        "   #{TicTacToe::X}  |  8  |  9  \n"\
-        "      |     |     \n"
-      ).to_stdout
-
-      $stdin = input3
-      expect { game.next_move }.to output(
-        "      |     |     \n"\
-        "   1  |  2  |  #{TicTacToe::X}  \n"\
-        " _____|_____|_____\n"\
-        "      |     |     \n"\
-        "   4  |  #{TicTacToe::O}  |  6  \n"\
-        " _____|_____|_____\n"\
-        "      |     |     \n"\
-        "   #{TicTacToe::X}  |  8  |  9  \n"\
-        "      |     |     \n"
-      ).to_stdout
-
-      $stdin = input4
-      expect { game.next_move }.to output(
-        "Space has already been selected. Please select one of: [1, 2, 4, 6, 8, 9]\n"
-      ).to_stdout
-
-      $stdin = input5
-      expect { game.next_move }.to output(
-        "Invalid space. Please select one of: [1, 2, 4, 6, 8, 9]\n"
-      ).to_stdout
-
-      $stdin = STDIN
-    end
-  end
 
   describe '#winner' do
-    game = Game.new
-    game.new_round
     it 'returns nil when there is no winner or tie yet' do
-      game.winner
+      board = Board.new
+      expect(board.winner).to eql(nil)
+    end
+
+    it 'returns X when Player 1 wins diagonally 1-5-9' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [1, 2, 5, 3, 9])
+      expect(board.winner).to eql(TicTacToe::X)
+    end
+
+    it 'returns O when Player 2 wins diagonally 1-5-9' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [2, 1, 3, 5, 4, 9])
+      expect(board.winner).to eql(TicTacToe::O)
+    end
+
+    it 'returns X when Player 1 wins diagonally 3-5-7' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [3, 4, 5, 6, 7])
+      expect(board.winner).to eql(TicTacToe::X)
+    end
+
+    it 'returns O when Player 2 wins diagonally 3-5-7' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [2, 3, 6, 5, 4, 7])
+      expect(board.winner).to eql(TicTacToe::O)
+    end
+
+    it 'returns X when Player 1 wins horizontally 1-2-3' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [1, 4, 2, 5, 3])
+      expect(board.winner).to eql(TicTacToe::X)
+    end
+
+    it 'returns O when Player 2 wins horizontally 1-2-3' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [4, 1, 5, 2, 7, 3])
+      expect(board.winner).to eql(TicTacToe::O)
+    end
+
+    it 'returns X when Player 1 wins horizontally 4-5-6' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [4, 1, 5, 2, 6])
+      expect(board.winner).to eql(TicTacToe::X)
+    end
+
+    it 'returns O when Player 2 wins horizontally 4-5-6' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [1, 4, 2, 5, 7, 6])
+      expect(board.winner).to eql(TicTacToe::O)
+    end
+
+    it 'returns X when Player 1 wins horizontally 7-8-9' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [7, 4, 8, 5, 9])
+      expect(board.winner).to eql(TicTacToe::X)
+    end
+
+    it 'returns O when Player 2 wins horizontally 7-8-9' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [4, 7, 6, 8, 2, 9])
+      expect(board.winner).to eql(TicTacToe::O)
+    end
+
+    it 'returns X when Player 1 wins vertically 1-4-7' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [1, 2, 4, 3, 7])
+      expect(board.winner).to eql(TicTacToe::X)
+    end
+
+    it 'returns O when Player 2 wins vertically 1-4-7' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [2, 1, 3, 4, 8, 7])
+      expect(board.winner).to eql(TicTacToe::O)
+    end
+
+    it 'returns X when Player 1 wins vertically 2-5-8' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [2, 1, 5, 3, 8])
+      expect(board.winner).to eql(TicTacToe::X)
+    end
+
+    it 'returns O when Player 2 wins vertically 2-5-8' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [1, 2, 3, 5, 4, 8])
+      expect(board.winner).to eql(TicTacToe::O)
+    end
+
+    it 'returns X when Player 1 wins vertically 3-6-9' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [3, 1, 6, 2, 9])
+      expect(board.winner).to eql(TicTacToe::X)
+    end
+
+    it 'returns O when Player 2 wins vertically 3-6-9' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [1, 3, 2, 6, 4, 9])
+      expect(board.winner).to eql(TicTacToe::O)
+    end
+
+    it 'returns Tie when neither player wins and there are no vacant spaces' do
+      board = Board.new
+      TicTacToeSpecHelper.make_moves(board, [5, 1, 3, 7, 4, 6, 8, 2, 9])
+      expect(board.winner).to eql(TicTacToe::TIE)
     end
   end
 end
 # rubocop: enable Metrics/BlockLength
+
+# Helper functions for use in testing and specification
+module TicTacToeSpecHelper
+  def self.make_moves(board, space_numbers)
+    space_numbers.each { |space_number| board.make_move space_number }
+  end
+end

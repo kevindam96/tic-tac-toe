@@ -4,7 +4,10 @@
 class Board
   def initialize
     @moves = {}
-    @spaces = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    9.times do |num|
+      space_number = num + 1
+      @moves[space_number] = space_number
+    end
   end
 
   def make_move(space_number)
@@ -18,65 +21,90 @@ class Board
     end
   end
 
+  def winner
+    check_diagonal_for_winner ||
+      check_horizontal_for_winner ||
+      check_vertical_for_winner ||
+      check_for_tie
+  end
+
   def to_s
     "      |     |     \n"\
-      "   #{@spaces[0]}  |  #{@spaces[1]}  |  #{@spaces[2]}  \n"\
+      "   #{@moves[1]}  |  #{@moves[2]}  |  #{@moves[3]}  \n"\
       " _____|_____|_____\n"\
       "      |     |     \n"\
-      "   #{@spaces[3]}  |  #{@spaces[4]}  |  #{@spaces[5]}  \n"\
+      "   #{@moves[4]}  |  #{@moves[5]}  |  #{@moves[6]}  \n"\
       " _____|_____|_____\n"\
       "      |     |     \n"\
-      "   #{@spaces[6]}  |  #{@spaces[7]}  |  #{@spaces[8]}  \n"\
+      "   #{@moves[7]}  |  #{@moves[8]}  |  #{@moves[9]}  \n"\
       '      |     |     '
   end
 
   def move_count
-    @moves.length
+    @moves.values.reduce(0) do |count, space_val|
+      TicTacToe.symbol?(space_val) ? count + 1 : count
+    end
   end
 
   private
 
   def next_symbol
-    @moves.length.even? ? TicTacToe::X : TicTacToe::O
+    move_count.even? ? TicTacToe::X : TicTacToe::O
   end
 
   def update_board_after_move(space_number)
     symbol = next_symbol
     @moves[space_number] = symbol
-    @spaces[space_number - 1] = symbol
   end
 
   def available_spaces
-    @spaces.reject { |space| TicTacToe.symbol?(space) }
-  end
-end
-
-# Responsible for control of the flow of the game,
-# updating the model and calling the view when appropriate
-class Game
-  def initialize
-    @board = Board.new
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].reject { |space| TicTacToe.symbol?(symbol_on_space(space)) }
   end
 
-  def new_round
-    puts 'Tic-Tac-Toe!'
-    puts @board
+  def check_horizontal_for_winner
+    check_three_spaces([1, 2, 3]) ||
+      check_three_spaces([4, 5, 6]) ||
+      check_three_spaces([7, 8, 9])
   end
 
-  def next_move
-    space_number = if @board.move_count.even?
-                     gets 'Player 1! Please select a space (1 - 9): '
-                   else
-                     gets 'Player 2! Please select a space (1 - 9): '
-                   end
-    @board.make_move(space_number.chomp.to_i)
+  def check_vertical_for_winner
+    check_three_spaces([1, 4, 7]) ||
+      check_three_spaces([2, 5, 8]) ||
+      check_three_spaces([3, 6, 9])
+  end
+
+  def check_diagonal_for_winner
+    check_three_spaces([1, 5, 9]) ||
+      check_three_spaces([3, 5, 7])
+  end
+
+  def check_for_tie
+    all_symbols = @moves.values.reduce do |acc, space|
+      acc && TicTacToe.symbol?(space)
+    end
+
+    all_symbols ? TicTacToe::TIE : nil
+  end
+
+  def check_three_spaces(space_numbers)
+    symbol_on_space_one = symbol_on_space(space_numbers[0])
+    symbol_on_space_two = symbol_on_space(space_numbers[1])
+    return nil unless symbol_on_space_one.eql?(symbol_on_space_two)
+    return nil unless symbol_on_space_two.eql?(symbol_on_space(space_numbers[2]))
+
+    symbol_on_space_one
+  end
+
+  def symbol_on_space(space_number)
+    @moves[space_number]
   end
 end
 
 # Constants and helper functions
 module TicTacToe
-  X = 'X'
-  O = 'O'
+  X = :X
+  O = :O
+  TIE = :Tie
 
   def self.invalid_space?(space_number)
     !(space_number.positive? && space_number < 10)
