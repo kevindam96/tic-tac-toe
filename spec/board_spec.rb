@@ -21,6 +21,41 @@ describe Board do
     end
   end
 
+  describe '#available_spaces' do
+    it 'returns [1, 2, 3, 4, 5, 6, 7, 8, 9] before any moves are made' do
+      board = Board.new
+      expect(board.available_spaces).to eql([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    end
+
+    it 'returns [1, 2, 3, 4, 6, 7, 8, 9] if Player One makes the first move on space 5' do
+      board = Board.new
+      board.make_move(5)
+      expect(board.available_spaces).to eql([1, 2, 3, 4, 6, 7, 8, 9])
+    end
+
+    it 'returns [1, 2, 3, 6, 7, 8, 9] if Player One makes the first move on space 5
+      and Player Two makes the second move on space 4' do
+      board = Board.new
+      board.make_move(5)
+      board.make_move(4)
+      expect(board.available_spaces).to eql([1, 2, 3, 6, 7, 8, 9])
+    end
+
+    it 'returns [] when there are no available spaces remaining' do
+      board = Board.new
+      board.make_move(5)
+      board.make_move(1)
+      board.make_move(3)
+      board.make_move(7)
+      board.make_move(4)
+      board.make_move(6)
+      board.make_move(8)
+      board.make_move(2)
+      board.make_move(9)
+      expect(board.available_spaces).to eql([])
+    end
+  end
+
   describe '#make_move' do
     it 'updates the tic-tac-toe board when the player makes the first move, filling in space 7' do
       board = Board.new
@@ -66,6 +101,23 @@ describe Board do
         " _____|_____|_____\n"\
         "      |     |     \n"\
         "   4  |  #{TicTacToe::O}  |  6  \n"\
+        " _____|_____|_____\n"\
+        "      |     |     \n"\
+        "   #{TicTacToe::X}  |  8  |  9  \n"\
+        '      |     |     '
+      )
+    end
+
+    it 'does nothing if a player attempts to choose an occupied space' do
+      board = Board.new
+      board.make_move(7)
+      board.make_move(7)
+      expect(board.to_s).to eql(
+        "      |     |     \n"\
+        "   1  |  2  |  3  \n"\
+        " _____|_____|_____\n"\
+        "      |     |     \n"\
+        "   4  |  5  |  6  \n"\
         " _____|_____|_____\n"\
         "      |     |     \n"\
         "   #{TicTacToe::X}  |  8  |  9  \n"\

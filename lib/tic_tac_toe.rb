@@ -10,15 +10,14 @@ class Board
     end
   end
 
+  def available_spaces
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].reject { |space| TicTacToe.symbol?(symbol_on_space(space)) }
+  end
+
   def make_move(space_number)
-    if TicTacToe.invalid_space?(space_number)
-      puts "Invalid space. Please select one of: #{available_spaces}"
-    elsif !available_spaces.include?(space_number)
-      puts "Space has already been selected. Please select one of: #{available_spaces}"
-    else
-      update_board_after_move(space_number)
-      puts to_s
-    end
+    return if TicTacToe.invalid_space?(space_number) || !available_spaces.include?(space_number)
+
+    update_board_after_move(space_number)
   end
 
   def winner
@@ -55,10 +54,6 @@ class Board
   def update_board_after_move(space_number)
     symbol = next_symbol
     @moves[space_number] = symbol
-  end
-
-  def available_spaces
-    [1, 2, 3, 4, 5, 6, 7, 8, 9].reject { |space| TicTacToe.symbol?(symbol_on_space(space)) }
   end
 
   def check_horizontal_for_winner
