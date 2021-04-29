@@ -16,6 +16,7 @@ def game_loop(board)
 end
 
 def prompt_new_game
+  ans = ''
   loop do
     puts 'Would you like to play again? (Y/N)'
     ans = gets.chomp.upcase
